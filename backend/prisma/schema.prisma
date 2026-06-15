@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String    @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime  @default(now())
+  bookings     Booking[]
+}
+
+model Movie {
+  id           Int      @id @default(autoincrement())
+  title        String
+  description  String
+  posterUrl    String
+  genre        String
+  durationMins Int
+  rating       Float?   // TMDB vote average (0-10), nullable
+  createdAt    DateTime @default(now())
+  shows        Show[]
+}
+
+model Theater {
+  id      Int      @id @default(autoincrement())
+  name    String
+  city    String
+  screens Screen[]
+}
+
+model Screen {
+  id        Int     @id @default(autoincrement())
+  name      String
+  theaterId Int
+  theater   Theater @relation(fields: [theaterId], references: [id])
+  seats     Seat[]
+  shows     Show[]
+}
+
+model Seat {
+  id       Int        @id @default(autoincrement())
+  row      String
+  number   Int
+  screenId Int
+  screen   Screen     @relation(fields: [screenId], references: [id])
+  showSeats ShowSeat[]
+
+  @@unique([screenId, row, number])
+}
+
+model Show {
+  id        Int        @id @default(autoincrement())
+  movieId   Int
+  movie     Movie      @relation(fields: [movieId], references: [id])
+  screenId  Int
+  screen    Screen     @relation(fields: [screenId], references: [id])
+  startTime DateTime
+  price     Decimal
+  showSeats ShowSeat[]
+  bookings  Booking[]
+}
+
+model ShowSeat {
+  id          Int          @id @default(autoincrement())
+  showId      Int
+  show        Show         @relation(fields: [showId], references: [id])
+  seatId      Int
+  seat        Seat         @relation(fields: [seatId], references: [id])
+  status      String       @default("AVAILABLE") // AVAILABLE | HELD | BOOKED
+  heldBy      Int?
+  heldUntil   DateTime?
+  version     Int          @default(0) // optimistic lock escape hatch (ADR-1)
+  bookingSeat BookingSeat?
+
+  @@unique([showId, seatId])
+}
+
+model Booking {
+  id           Int           @id @default(autoincrement())
+  userId       Int
+  user         User          @relation(fields: [userId], references: [id])
+  showId       Int
+  show         Show          @relation(fields: [showId], references: [id])
+  status       String        @default("HELD") // HELD | BOOKED | CANCELLED
+  createdAt    DateTime      @default(now())
+  bookingSeats BookingSeat[]
+}
+
+model BookingSeat {
+  id          Int      @id @default(autoincrement())
+  bookingId   Int
+  booking     Booking  @relation(fields: [bookingId], references: [id])
+  showSeatId  Int      @unique
+  showSeat    ShowSeat @relation(fields: [showSeatId], references: [id])
+}
