@@ -86,20 +86,7 @@ Leave `VITE_API_URL` unset locally; Vite proxies `/api` to the backend.
 |----------|----------|-------------|
 | `VITE_API_URL` | Prod only | Backend URL (e.g. Render). Unset locally. |
 
-## Deploy for free
 
-Use **Neon** (database) + **Render** (API) + **Vercel** (frontend). Step-by-step guide:
-
-→ **[DEPLOYMENT.md](./DEPLOYMENT.md)**
-
-## Project docs
-
-| Doc | Contents |
-|-----|----------|
-| [ARCHITECTURE.md](./ARCHITECTURE.md) | System design, booking locks, agent flow |
-| [DECISIONS.md](./DECISIONS.md) | Architecture decision records |
-| [DEPLOYMENT.md](./DEPLOYMENT.md) | Local setup and free-tier deploy |
-| [SCALING.md](./SCALING.md) | Scaling path (Redis, replicas, etc.) |
 
 ## API overview
 
